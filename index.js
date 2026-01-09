@@ -145,6 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	const pageBody = document.body;
 
 	if (openBtn && closeBtn && nav && overlay) {
+		// Only close sidebar when clicking links that are NOT "#"
 		const navLinks = nav.querySelectorAll("a");
 
 		const openNav = () => {
@@ -162,7 +163,17 @@ document.addEventListener('DOMContentLoaded', function () {
 		openBtn.addEventListener("click", openNav);
 		closeBtn.addEventListener("click", closeNav);
 		overlay.addEventListener("click", closeNav);
-		navLinks.forEach(link => link.addEventListener("click", closeNav));
+		
+		// Only close sidebar when clicking actual navigation links (not #)
+		navLinks.forEach(link => {
+			link.addEventListener("click", (e) => {
+				const href = link.getAttribute("href");
+				// Only close if it's a real link (not just "#")
+				if (href && href !== "#") {
+					closeNav();
+				}
+			});
+		});
 
 		window.addEventListener("resize", () => {
 			if (window.innerWidth > 900) {

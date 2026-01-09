@@ -80,6 +80,11 @@ body.no-scroll {
   background: #be123c;
 }
 
+/* Hide on desktop, show only in mobile sidebar */
+.demo-cta-text {
+  display: none;
+}
+
 /* Dropdown base */
 .dropdown { position: relative; }
 .dropdown-toggle {
