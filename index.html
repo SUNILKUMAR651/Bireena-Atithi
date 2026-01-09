@@ -25,10 +25,14 @@
     </button>
 
     <nav id="sidebarNav">
-      <button class="close-btn" id="closeMenu">&times;</button>
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <div class="sidebar-logo">BIREENA ATITHI</div>
+        <button class="close-btn" id="closeMenu">&times;</button>
+      </div>
       <ul class="nav-menu">
         <li class="dropdown">
-          <button class="dropdown-toggle" data-dropdown="hms">Bireena Atithi <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button class="dropdown-toggle" data-dropdown="hms">POSS <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <div class="dropdown-panel" id="hms" aria-hidden="true">
             <ul class="panel-list">
               <li>
@@ -236,7 +240,14 @@
           </div>
         </div>
 
-        <a class="demo-btn nav-demo-btn" href="#">Book A Demo</a>
+        <!-- Desktop Demo Button -->
+        <a class="demo-btn desktop-demo-btn" href="#">Book A Demo</a>
+
+        <!-- Mobile CTA Section -->
+        <div class="sidebar-cta">
+          <p class="sidebar-cta-text">Get in touch with our team to clarify your queries</p>
+          <a class="nav-demo-btn" href="#">Book a free demo</a>
+        </div>
       </div>
     </nav>
   </div>
