@@ -1,0 +1,106 @@
+﻿<footer class="footer">
+
+  <div class="footer-top">
+
+    <!-- Bireena Atithi -->
+    <div class="footer-col">
+      <h4>Bireena Atithi</h4>
+      <ul>
+        <li><a href="#">Billing</a></li>
+        <li><a href="#">Inventory</a></li>
+        <li><a href="#">Reporting</a></li>
+        <li><a href="#">Online Ordering</a></li>
+        <li><a href="#">CRM</a></li>
+        <li><a href="#">Menu</a></li>
+      </ul>
+
+      <a href="#" class="footer-btn">Take a free demo</a>
+    </div>
+
+    <!-- Add-ons -->
+    <div class="footer-col">
+      <h4>Add-ons</h4>
+      <ul>
+        <li><a href="#">Marketplace</a></li>
+        <li><a href="#">Integrations</a></li>
+      </ul>
+    </div>
+
+    <!-- Outlet types -->
+    <div class="footer-col">
+      <h4>Outlet types</h4>
+      <ul>
+        <li><a href="#">Fine Dine</a></li>
+        <li><a href="#">QSR</a></li>
+        <li><a href="#">Cafe</a></li>
+        <li><a href="#">Food Court</a></li>
+        <li><a href="#">Cloud Kitchen</a></li>
+        <li><a href="#">Ice Cream</a></li>
+        <li><a href="#">Bakery</a></li>
+        <li><a href="#">Bar & Brewery</a></li>
+        <li><a href="#">Pizzeria</a></li>
+        <li><a href="#">Large Chains</a></li>
+      </ul>
+    </div>
+
+    <!-- Resources -->
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="#">Pricing</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Support</a></li>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Reseller</a></li>
+        <li><a href="#">Magazine</a></li>
+      </ul>
+    </div>
+
+    <!-- Company -->
+    <div class="footer-col footer-company">
+      <h4>Bireena Atithi</h4>
+      <p>
+        B-36, Anisabad,<br>
+        Patna, Bihar, India<br>
+        800002
+      </p>
+    </div>
+
+  </div>
+
+  <!-- SOCIAL + CONTACT -->
+  <div class="footer-middle">
+    <div class="footer-logo">
+      <img src="pic section/B I R E E NA edutech.png" alt=" Bireena Atithi Logo">
+    </div>
+
+
+    <div class="footer-social">
+      <a href="#">Facebook</a>
+      <a href="#">Instagram</a>
+      <a href="#">Youtube</a>
+    </div>
+
+    <div class="footer-contact">
+      <a href="tel:+919135155931">+91 91351-55931</a>
+      <a href="tel:+919304942225">+91 93049-42225</a>
+      <a href="mailto:bireenainfo@gmail.com">bireenainfo@gmail.com</a>
+    </div>
+  </div>
+
+  <!-- BOTTOM -->
+  <div class="footer-bottom">
+    <p>
+      COPYRIGHT © 2026 – Bireena Atithi  Food Services Pvt. Ltd., India ·
+      <a href="#">Privacy</a> ·
+      <a href="#">Compliance</a> ·
+      <a href="#">Terms</a> ·
+      <a href="#">EULA</a> ·
+      <a href="#">Cancellation & Refund</a> ·
+      <a href="#">Corporate Information</a> ·
+      <a href="#">Escalation Matrix</a>
+    </p>
+  </div>
+
+</footer>

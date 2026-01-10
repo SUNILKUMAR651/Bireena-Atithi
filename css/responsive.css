@@ -435,3 +435,24 @@
     min-width: 720px;
   }
 }
+
+/* ============================================
+ * PRICING PAGE RESPONSIVE (max-width: 768px)
+ * ============================================ */
+@media (max-width: 768px) {
+  .pricing-title {
+    font-size: 34px;
+  }
+
+  .faq-title {
+    font-size: 30px;
+  }
+
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .faq-grid {
+    grid-template-columns: 1fr;
+  }
+}
