@@ -1,398 +1,435 @@
 /**
- * Bireena Atithi - Mobile-First Navigation System
- * ================================================
+ * ============================================
+ * BIREENA ATITHI - Navigation System
+ * ============================================
+ * Senior Frontend Developer Implementation
+ * 
  * Features:
- * - Smooth sidebar slide animation
- * - Dropdown expand/collapse on mobile
- * - Desktop hover behavior preserved
- * - Accessibility support (aria attributes)
- * - Production-ready code
+ * - Mobile sidebar with smooth slide animation
+ * - Dropdown expand/collapse (Petpooja style)
+ * - Desktop hover behavior unchanged
+ * - Full accessibility support
+ * - Production-ready, optimized code
+ * ============================================
  */
 
-document.addEventListener('DOMContentLoaded', function () {
-  
+(function() {
+  'use strict';
+
+  // Wait for DOM to be ready
+  document.addEventListener('DOMContentLoaded', init);
+
+  function init() {
+    initSidebar();
+    initDropdowns();
+    initTestimonialSlider();
+    initCounterAnimation();
+  }
+
   // ============================================
-  // MOBILE SIDEBAR NAVIGATION
+  // CONFIGURATION
   // ============================================
   
-  const openBtn = document.getElementById("openMenu");
-  const closeBtn = document.getElementById("closeMenu");
-  const sidebar = document.getElementById("sidebarNav");
-  const overlay = document.getElementById("menuOverlay");
-  const body = document.body;
+  const CONFIG = {
+    mobileBreakpoint: 900,  // px - matches CSS breakpoint
+    dropdownCloseDelay: 200, // ms - delay before closing on desktop
+    animationDuration: 300   // ms - for smooth transitions
+  };
+
+  // ============================================
+  // UTILITY FUNCTIONS
+  // ============================================
 
   /**
-   * Open the mobile sidebar
+   * Check if current viewport is mobile
+   * @returns {boolean}
    */
-  function openSidebar() {
-    if (!sidebar || !overlay) return;
-    sidebar.classList.add("active");
-    overlay.classList.add("active");
-    body.classList.add("no-scroll");
-    sidebar.setAttribute("aria-hidden", "false");
+  function isMobile() {
+    return window.innerWidth <= CONFIG.mobileBreakpoint;
   }
 
   /**
-   * Close the mobile sidebar
+   * Prevent event default and stop propagation
+   * @param {Event} e 
    */
-  function closeSidebar() {
-    if (!sidebar || !overlay) return;
-    sidebar.classList.remove("active");
-    overlay.classList.remove("active");
-    body.classList.remove("no-scroll");
-    sidebar.setAttribute("aria-hidden", "true");
-    
-    // Close all dropdowns when sidebar closes
-    closeAllDropdowns();
-  }
-
-  // Sidebar open/close event listeners
-  if (openBtn) {
-    openBtn.addEventListener("click", (e) => {
+  function stopEvent(e) {
+    if (e) {
       e.preventDefault();
       e.stopPropagation();
-      openSidebar();
-    });
-  }
-
-  if (closeBtn) {
-    closeBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      closeSidebar();
-    });
-  }
-
-  // Close sidebar when clicking overlay
-  if (overlay) {
-    overlay.addEventListener("click", closeSidebar);
-  }
-
-  // Close sidebar on window resize (desktop)
-  window.addEventListener("resize", () => {
-    if (window.innerWidth > 900) {
-      closeSidebar();
     }
-  });
+  }
 
   // ============================================
-  // DROPDOWN NAVIGATION SYSTEM
+  // MOBILE SIDEBAR MODULE
   // ============================================
 
-  const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
-  const closeTimers = new Map();
+  function initSidebar() {
+    const openBtn = document.getElementById('openMenu');
+    const closeBtn = document.getElementById('closeMenu');
+    const sidebar = document.getElementById('sidebarNav');
+    const overlay = document.getElementById('menuOverlay');
 
-  /**
-   * Close all dropdown panels
-   */
-  function closeAllDropdowns() {
-    document.querySelectorAll('.dropdown-panel').forEach(panel => {
-      panel.setAttribute('aria-hidden', 'true');
-    });
-    document.querySelectorAll('.dropdown').forEach(dropdown => {
-      dropdown.classList.remove('open');
-    });
-    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
-      toggle.setAttribute('aria-expanded', 'false');
-    });
-  }
-
-  /**
-   * Open a specific dropdown panel
-   * @param {HTMLElement} dropdown - The dropdown container
-   * @param {HTMLElement} panel - The dropdown panel
-   */
-  function openDropdown(dropdown, panel) {
-    // On desktop, close other dropdowns first
-    if (window.innerWidth > 900) {
-      closeAllDropdowns();
-    }
-    
-    panel.setAttribute('aria-hidden', 'false');
-    dropdown.classList.add('open');
-    
-    // Update aria-expanded on toggle button
-    const toggle = dropdown.querySelector('.dropdown-toggle');
-    if (toggle) {
-      toggle.setAttribute('aria-expanded', 'true');
-    }
-  }
-
-  /**
-   * Close a specific dropdown panel
-   * @param {HTMLElement} dropdown - The dropdown container
-   * @param {HTMLElement} panel - The dropdown panel
-   */
-  function closeDropdown(dropdown, panel) {
-    panel.setAttribute('aria-hidden', 'true');
-    dropdown.classList.remove('open');
-    
-    // Update aria-expanded on toggle button
-    const toggle = dropdown.querySelector('.dropdown-toggle');
-    if (toggle) {
-      toggle.setAttribute('aria-expanded', 'false');
-    }
-  }
-
-  /**
-   * Toggle dropdown open/close state
-   * @param {HTMLElement} dropdown - The dropdown container
-   * @param {HTMLElement} panel - The dropdown panel
-   */
-  function toggleDropdown(dropdown, panel) {
-    const isOpen = panel.getAttribute('aria-hidden') === 'false';
-    
-    if (isOpen) {
-      closeDropdown(dropdown, panel);
-    } else {
-      openDropdown(dropdown, panel);
-    }
-  }
-
-  // Initialize each dropdown toggle
-  dropdownToggles.forEach(toggle => {
-    const dropdownId = toggle.getAttribute('data-dropdown');
-    const panel = document.getElementById(dropdownId);
-    const dropdown = toggle.closest('.dropdown');
-
-    if (!panel || !dropdown) return;
-
-    // Set initial aria attributes
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.setAttribute('aria-controls', dropdownId);
+    if (!sidebar) return;
 
     /**
-     * CLICK EVENT - Works for both mobile and desktop
-     * Prevents default behavior and toggles dropdown
+     * Open sidebar with animation
      */
-    toggle.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    function open() {
+      sidebar.classList.add('active');
+      if (overlay) overlay.classList.add('active');
+      document.body.classList.add('no-scroll');
+      sidebar.setAttribute('aria-hidden', 'false');
       
-      // Cancel any scheduled close
-      const timer = closeTimers.get(dropdown);
-      if (timer) {
-        clearTimeout(timer);
-        closeTimers.delete(dropdown);
+      // Focus management for accessibility
+      if (closeBtn) closeBtn.focus();
+    }
+
+    /**
+     * Close sidebar with animation
+     */
+    function close() {
+      sidebar.classList.remove('active');
+      if (overlay) overlay.classList.remove('active');
+      document.body.classList.remove('no-scroll');
+      sidebar.setAttribute('aria-hidden', 'true');
+      
+      // Close all dropdowns when sidebar closes
+      document.querySelectorAll('.dropdown.open').forEach(d => {
+        d.classList.remove('open');
+        const panel = d.querySelector('.dropdown-panel');
+        if (panel) panel.setAttribute('aria-hidden', 'true');
+        const toggle = d.querySelector('.dropdown-toggle');
+        if (toggle) toggle.setAttribute('aria-expanded', 'false');
+      });
+      
+      // Return focus to open button
+      if (openBtn) openBtn.focus();
+    }
+
+    // EVENT: Open button click
+    if (openBtn) {
+      openBtn.addEventListener('click', function(e) {
+        stopEvent(e);
+        open();
+      });
+    }
+
+    // EVENT: Close button click
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function(e) {
+        stopEvent(e);
+        close();
+      });
+    }
+
+    // EVENT: Overlay click - close sidebar
+    if (overlay) {
+      overlay.addEventListener('click', function(e) {
+        stopEvent(e);
+        close();
+      });
+    }
+
+    // EVENT: Prevent clicks inside sidebar from closing it
+    sidebar.addEventListener('click', function(e) {
+      // IMPORTANT: Stop propagation so document click doesn't fire
+      e.stopPropagation();
+    });
+
+    // EVENT: Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+        close();
+      }
+    });
+
+    // EVENT: Close on window resize to desktop
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(function() {
+        if (!isMobile() && sidebar.classList.contains('active')) {
+          close();
+        }
+      }, 100);
+    });
+  }
+
+  // ============================================
+  // DROPDOWN MODULE
+  // ============================================
+
+  function initDropdowns() {
+    const dropdowns = document.querySelectorAll('.dropdown');
+    const closeTimers = new Map();
+
+    dropdowns.forEach(function(dropdown) {
+      const toggle = dropdown.querySelector('.dropdown-toggle');
+      const panel = dropdown.querySelector('.dropdown-panel');
+
+      if (!toggle || !panel) return;
+
+      // Set initial ARIA attributes
+      toggle.setAttribute('aria-expanded', 'false');
+      panel.setAttribute('aria-hidden', 'true');
+
+      /**
+       * Open this dropdown
+       */
+      function openDropdown() {
+        // On desktop, close other dropdowns first
+        if (!isMobile()) {
+          closeAllDropdowns();
+        }
+        
+        dropdown.classList.add('open');
+        panel.setAttribute('aria-hidden', 'false');
+        toggle.setAttribute('aria-expanded', 'true');
       }
 
-      toggleDropdown(dropdown, panel);
-    });
+      /**
+       * Close this dropdown
+       */
+      function closeDropdown() {
+        dropdown.classList.remove('open');
+        panel.setAttribute('aria-hidden', 'true');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
 
-    /**
-     * DESKTOP ONLY - Hover to open
-     * Uses pointer events for better touch/mouse handling
-     */
-    dropdown.addEventListener('pointerenter', () => {
-      if (window.innerWidth > 900) {
-        // Cancel any scheduled close
+      /**
+       * Toggle dropdown state
+       */
+      function toggleDropdown() {
+        if (dropdown.classList.contains('open')) {
+          closeDropdown();
+        } else {
+          openDropdown();
+        }
+      }
+
+      /**
+       * Close all dropdowns
+       */
+      function closeAllDropdowns() {
+        dropdowns.forEach(function(d) {
+          d.classList.remove('open');
+          const p = d.querySelector('.dropdown-panel');
+          const t = d.querySelector('.dropdown-toggle');
+          if (p) p.setAttribute('aria-hidden', 'true');
+          if (t) t.setAttribute('aria-expanded', 'false');
+        });
+      }
+
+      // ----------------------------------------
+      // CLICK EVENT - Works on both mobile & desktop
+      // ----------------------------------------
+      toggle.addEventListener('click', function(e) {
+        // CRITICAL: Prevent default behavior
+        e.preventDefault();
+        // CRITICAL: Stop propagation to prevent document click handler
+        e.stopPropagation();
+        
+        // Cancel any pending close timer
         const timer = closeTimers.get(dropdown);
         if (timer) {
           clearTimeout(timer);
           closeTimers.delete(dropdown);
         }
-        openDropdown(dropdown, panel);
-      }
-    });
 
-    /**
-     * DESKTOP ONLY - Mouse leave to close with delay
-     * Small delay allows moving between toggle and panel
-     */
-    dropdown.addEventListener('pointerleave', () => {
-      if (window.innerWidth > 900) {
-        const timer = setTimeout(() => {
-          closeDropdown(dropdown, panel);
-          closeTimers.delete(dropdown);
-        }, 200);
-        closeTimers.set(dropdown, timer);
-      }
-    });
-  });
+        toggleDropdown();
+      });
 
-  /**
-   * Close dropdowns when clicking outside (desktop only)
-   * Mobile sidebar handles its own click behavior
-   */
-  document.addEventListener('click', (e) => {
-    if (window.innerWidth > 900) {
-      // Check if click is outside any dropdown
-      const isInsideDropdown = e.target.closest('.dropdown');
-      if (!isInsideDropdown) {
-        closeAllDropdowns();
-      }
-    }
-  });
-
-  /**
-   * Prevent clicks inside sidebar from bubbling up
-   * This stops sidebar from closing when clicking inside
-   */
-  if (sidebar) {
-    sidebar.addEventListener('click', (e) => {
-      // Only stop propagation, don't prevent default
-      // This allows links inside to work
-      e.stopPropagation();
-    });
-  }
-
-  /**
-   * Handle clicks on panel links
-   * Close sidebar only for real navigation links
-   */
-  document.querySelectorAll('.panel-link').forEach(link => {
-    link.addEventListener('click', (e) => {
-      const href = link.getAttribute('href');
+      // ----------------------------------------
+      // DESKTOP ONLY - Hover behavior
+      // ----------------------------------------
       
-      // If it's a real link (not # or empty), close sidebar on mobile
-      if (href && href !== '#' && href !== '') {
-        if (window.innerWidth <= 900) {
-          // Small delay to show click feedback
-          setTimeout(() => {
-            closeSidebar();
-          }, 100);
-        }
-      }
-      
-      // Don't prevent default - let the link navigate
-    });
-  });
-
-  /**
-   * Keyboard accessibility
-   * Close dropdowns/sidebar on Escape key
-   */
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeAllDropdowns();
-      
-      // Also close sidebar on mobile
-      if (window.innerWidth <= 900) {
-        closeSidebar();
-      }
-    }
-  });
-
-  // ============================================
-  // TESTIMONIAL SLIDER
-  // ============================================
-
-  const slides = document.querySelectorAll(".testimonial-slide");
-  const dots = document.querySelectorAll(".dot");
-  let currentSlide = 0;
-  let slideInterval;
-
-  /**
-   * Show a specific slide
-   * @param {number} index - Slide index to show
-   */
-  function showSlide(index) {
-    if (slides.length === 0) return;
-    
-    // Normalize index
-    if (index >= slides.length) index = 0;
-    if (index < 0) index = slides.length - 1;
-
-    // Remove active class from all
-    slides.forEach(slide => slide.classList.remove("active"));
-    dots.forEach(dot => dot.classList.remove("active"));
-
-    // Add active class to current
-    slides[index].classList.add("active");
-    if (dots[index]) {
-      dots[index].classList.add("active");
-    }
-    
-    currentSlide = index;
-  }
-
-  /**
-   * Auto-advance slides
-   */
-  function startSlideshow() {
-    slideInterval = setInterval(() => {
-      showSlide(currentSlide + 1);
-    }, 5000);
-  }
-
-  // Dot click handlers
-  dots.forEach((dot, index) => {
-    dot.addEventListener("click", () => {
-      showSlide(parseInt(dot.dataset.slide) || index);
-      
-      // Reset auto-advance timer
-      clearInterval(slideInterval);
-      startSlideshow();
-    });
-  });
-
-  // Start slideshow if slides exist
-  if (slides.length > 0) {
-    startSlideshow();
-  }
-
-  // ============================================
-  // COUNTER ANIMATION
-  // ============================================
-
-  const counters = document.querySelectorAll('.counter');
-  let countersAnimated = false;
-
-  /**
-   * Animate counter numbers
-   */
-  function animateCounters() {
-    if (countersAnimated) return;
-    
-    counters.forEach(counter => {
-      const target = parseFloat(counter.getAttribute('data-target')) || 0;
-      const suffix = counter.getAttribute('data-suffix') || '';
-      const duration = 2000; // 2 seconds
-      const fps = 60;
-      const increment = target / (duration / (1000 / fps));
-      let current = 0;
-
-      const updateCounter = () => {
-        current += increment;
+      // Mouse enter - open immediately
+      dropdown.addEventListener('mouseenter', function() {
+        if (isMobile()) return; // Skip on mobile
         
-        if (current < target) {
-          counter.textContent = Math.floor(current) + suffix;
-          requestAnimationFrame(updateCounter);
-        } else {
-          counter.textContent = target + suffix;
+        // Cancel any pending close
+        const timer = closeTimers.get(dropdown);
+        if (timer) {
+          clearTimeout(timer);
+          closeTimers.delete(dropdown);
         }
-      };
+        
+        openDropdown();
+      });
 
-      requestAnimationFrame(updateCounter);
-    });
-    
-    countersAnimated = true;
-  }
+      // Mouse leave - close with delay
+      dropdown.addEventListener('mouseleave', function() {
+        if (isMobile()) return; // Skip on mobile
+        
+        const timer = setTimeout(function() {
+          closeDropdown();
+          closeTimers.delete(dropdown);
+        }, CONFIG.dropdownCloseDelay);
+        
+        closeTimers.set(dropdown, timer);
+      });
 
-  /**
-   * Intersection Observer for counter animation
-   * Triggers when stats section comes into view
-   */
-  const statsSection = document.querySelector('.testimonial-stats');
-  
-  if (statsSection && counters.length > 0) {
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.5
-    };
-
-    const statsObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          animateCounters();
-          // Stop observing after animation
-          statsObserver.unobserve(entry.target);
+      // ----------------------------------------
+      // Prevent panel clicks from closing dropdown
+      // ----------------------------------------
+      panel.addEventListener('click', function(e) {
+        // Don't stop propagation for actual links
+        // but do stop it for the panel itself
+        if (e.target === panel || e.target.closest('.panel-list')) {
+          e.stopPropagation();
         }
       });
-    }, observerOptions);
+    });
 
-    statsObserver.observe(statsSection);
+    // ----------------------------------------
+    // DOCUMENT CLICK - Close dropdowns on outside click
+    // ----------------------------------------
+    document.addEventListener('click', function(e) {
+      // Only on desktop
+      if (isMobile()) return;
+      
+      // Check if click is outside all dropdowns
+      const clickedDropdown = e.target.closest('.dropdown');
+      if (!clickedDropdown) {
+        dropdowns.forEach(function(d) {
+          d.classList.remove('open');
+          const p = d.querySelector('.dropdown-panel');
+          const t = d.querySelector('.dropdown-toggle');
+          if (p) p.setAttribute('aria-hidden', 'true');
+          if (t) t.setAttribute('aria-expanded', 'false');
+        });
+      }
+    });
   }
 
-});
+  // ============================================
+  // TESTIMONIAL SLIDER MODULE
+  // ============================================
+
+  function initTestimonialSlider() {
+    const slides = document.querySelectorAll('.testimonial-slide');
+    const dots = document.querySelectorAll('.dot');
+    
+    if (slides.length === 0) return;
+
+    let currentIndex = 0;
+    let autoplayInterval;
+
+    /**
+     * Show slide at given index
+     * @param {number} index 
+     */
+    function showSlide(index) {
+      // Normalize index
+      if (index >= slides.length) index = 0;
+      if (index < 0) index = slides.length - 1;
+
+      // Update slides
+      slides.forEach(function(slide, i) {
+        slide.classList.toggle('active', i === index);
+      });
+
+      // Update dots
+      dots.forEach(function(dot, i) {
+        dot.classList.toggle('active', i === index);
+      });
+
+      currentIndex = index;
+    }
+
+    /**
+     * Start autoplay
+     */
+    function startAutoplay() {
+      stopAutoplay();
+      autoplayInterval = setInterval(function() {
+        showSlide(currentIndex + 1);
+      }, 5000);
+    }
+
+    /**
+     * Stop autoplay
+     */
+    function stopAutoplay() {
+      if (autoplayInterval) {
+        clearInterval(autoplayInterval);
+      }
+    }
+
+    // Dot click handlers
+    dots.forEach(function(dot, index) {
+      dot.addEventListener('click', function() {
+        showSlide(parseInt(dot.dataset.slide) || index);
+        startAutoplay(); // Reset timer
+      });
+    });
+
+    // Start autoplay
+    startAutoplay();
+  }
+
+  // ============================================
+  // COUNTER ANIMATION MODULE
+  // ============================================
+
+  function initCounterAnimation() {
+    const counters = document.querySelectorAll('.counter');
+    const statsSection = document.querySelector('.testimonial-stats');
+    
+    if (!statsSection || counters.length === 0) return;
+
+    let animated = false;
+
+    /**
+     * Animate all counters
+     */
+    function animate() {
+      if (animated) return;
+      animated = true;
+
+      counters.forEach(function(counter) {
+        const target = parseFloat(counter.dataset.target) || 0;
+        const suffix = counter.dataset.suffix || '';
+        const duration = 2000;
+        const startTime = performance.now();
+
+        function update(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          
+          // Easing function for smooth animation
+          const easeOut = 1 - Math.pow(1 - progress, 3);
+          const current = Math.floor(target * easeOut);
+          
+          counter.textContent = current + suffix;
+
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          } else {
+            counter.textContent = target + suffix;
+          }
+        }
+
+        requestAnimationFrame(update);
+      });
+    }
+
+    // Use Intersection Observer
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            animate();
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.5 });
+
+      observer.observe(statsSection);
+    } else {
+      // Fallback for older browsers
+      animate();
+    }
+  }
+
+})();

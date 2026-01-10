@@ -1,71 +1,127 @@
-/* Responsive rules for navbar, dropdowns, and types grid */
+/* ============================================
+ * RESPONSIVE STYLES - Mobile Navigation
+ * ============================================
+ * Petpooja-style sidebar navigation
+ * - Smooth slide animation
+ * - Dropdown expand/collapse
+ * - Touch-friendly interactions
+ * ============================================ */
 
 /* Mobile-first: small screens (phones) */
 @media (max-width: 900px) {
-  .nav-flex { padding: 12px 16px; }
-  .logo { font-size: 18px; }
+  
+  /* ----------------------------------------
+   * NAVBAR ADJUSTMENTS
+   * ---------------------------------------- */
+  .nav-flex { 
+    padding: 12px 16px; 
+  }
+  
+  .logo { 
+    font-size: 18px; 
+  }
 
+  /* ----------------------------------------
+   * HAMBURGER BUTTON
+   * ---------------------------------------- */
   .hamburger {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    padding: 8px;
+    cursor: pointer;
+    z-index: 100;
   }
 
+  /* ----------------------------------------
+   * SIDEBAR NAVIGATION
+   * ---------------------------------------- */
   #sidebarNav {
     position: fixed;
     top: 0;
-    right: -320px;
+    right: -100%;
     width: 320px;
-    max-width: 92%;
-    height: 100%;
+    max-width: 85vw;
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile */
     background: #fff;
     z-index: 1002;
-    transition: right 0.3s ease;
-    padding: 88px 0 32px;
+    transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 80px 0 32px;
     overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    box-shadow: 0 28px 60px rgba(15, 23, 42, 0.18);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+    -webkit-overflow-scrolling: touch;
   }
 
   #sidebarNav.active {
     right: 0;
   }
 
+  /* ----------------------------------------
+   * CLOSE BUTTON
+   * ---------------------------------------- */
   .close-btn {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
-    top: 18px;
-    right: 18px;
-    font-size: 30px;
-    background: none;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    font-size: 28px;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #374151;
+    transition: background 0.2s ease;
   }
 
+  .close-btn:hover,
+  .close-btn:active {
+    background: #e5e7eb;
+  }
+
+  /* ----------------------------------------
+   * NAV MENU
+   * ---------------------------------------- */
   .nav-menu {
-    display: block;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     padding: 0;
     margin: 0;
+    list-style: none;
   }
 
   .nav-menu > li {
     width: 100%;
-    border-top: 1px solid #f1f1f1;
+    border-bottom: 1px solid #f1f1f1;
   }
 
   .nav-menu > li:first-child {
-    border-top: none;
+    border-top: 1px solid #f1f1f1;
   }
 
+  /* ----------------------------------------
+   * DROPDOWN CONTAINER
+   * ---------------------------------------- */
   .dropdown {
     width: 100%;
+    position: relative;
   }
 
+  /* ----------------------------------------
+   * DROPDOWN TOGGLE BUTTON
+   * ---------------------------------------- */
   .dropdown-toggle {
     width: 100%;
     text-align: left;
-    padding: 16px 20px;
+    padding: 18px 20px;
     background: #fff;
     border: none;
     border-radius: 0;
@@ -75,160 +131,232 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .dropdown.open > .dropdown-toggle {
+  .dropdown-toggle:hover,
+  .dropdown-toggle:active {
     background: #f9fafb;
   }
 
-  .dropdown-panel {
-    position: static !important;
-    width: 100% !important;
-    box-shadow: none !important;
-    border: none !important;
-    padding: 0 !important;
-    margin-top: 0 !important;
-    background: #f9fafb !important;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  .dropdown.open > .dropdown-toggle {
+    background: #f3f4f6;
+    color: #e11d48;
   }
 
-  .dropdown-panel[aria-hidden="false"] {
-    max-height: 800px;
-    padding-bottom: 8px !important;
-  }
-
-  .dropdown-panel::before,
-  .dropdown-panel::after {
-    display: none !important;
-  }
-
+  /* ----------------------------------------
+   * DROPDOWN ARROW ICON
+   * ---------------------------------------- */
   .dropdown-arrow {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 20px;
+    height: 20px;
     flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dropdown.open .dropdown-arrow {
     transform: rotate(180deg);
   }
 
+  /* Hide pseudo-element arrow on mobile */
   .dropdown-toggle::after {
     display: none !important;
   }
 
-  /* Smooth touch feedback */
-  .dropdown-toggle:active {
-    background: #f3f4f6;
+  /* ----------------------------------------
+   * DROPDOWN PANEL
+   * ---------------------------------------- */
+  .dropdown-panel {
+    position: static !important;
+    width: 100% !important;
+    min-width: unset !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #fafafa !important;
+    
+    /* Smooth height animation */
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: 
+      max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.3s ease;
   }
 
+  .dropdown-panel[aria-hidden="false"] {
+    max-height: 1000px;
+    opacity: 1;
+    padding-bottom: 8px !important;
+  }
+
+  /* Hide caret arrows on mobile */
+  .dropdown-panel::before,
+  .dropdown-panel::after {
+    display: none !important;
+  }
+
+  /* ----------------------------------------
+   * PANEL LIST
+   * ---------------------------------------- */
+  .panel-list {
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  /* ----------------------------------------
+   * PANEL LINK ITEMS
+   * ---------------------------------------- */
   .panel-link {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 20px 14px 40px;
-    border-bottom: 1px solid #e5e7eb;
+    padding: 14px 20px 14px 36px;
     background: #fff;
     font-size: 14px;
     color: #374151;
-  }
-
-  .panel-link:hover {
-    background: #f3f4f6;
+    text-decoration: none;
+    border-bottom: 1px solid #f1f1f1;
+    transition: background 0.15s ease;
   }
 
   .panel-link:last-child {
     border-bottom: none;
   }
 
-  .panel-link .left { gap: 10px; }
-  .panel-link .left span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  
-  .panel-link .svg-icon {
-    width: 18px;
-    height: 18px;
+  .panel-link:hover,
+  .panel-link:active {
+    background: #f3f4f6;
   }
 
-  .types-grid { 
-    display: grid; 
-    grid-template-columns: 1fr; 
-    gap: 0; 
+  .panel-link .left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .panel-link .left span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .panel-link .svg-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: #6b7280;
+  }
+
+  .panel-link .item-arrow {
+    width: 16px;
+    height: 16px;
+    opacity: 0.4;
+    flex-shrink: 0;
+  }
+
+  /* ----------------------------------------
+   * TYPES GRID (Outlet types dropdown)
+   * ---------------------------------------- */
+  .types-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
     padding: 0;
   }
-  
-  .types-grid .type-link { 
-    padding: 14px 20px 14px 40px;
-    border-radius: 0;
-    border-bottom: 1px solid #e5e7eb;
-    background: #fff;
-  }
 
-  .types-grid .type-link:hover {
-    background: #f3f4f6;
+  .types-grid .type-link {
+    padding: 14px 20px 14px 36px;
+    border-radius: 0;
+    border-bottom: 1px solid #f1f1f1;
+    background: #fff;
   }
 
   .types-grid .type-link:last-child {
     border-bottom: none;
   }
 
+  .types-grid .type-link:hover,
+  .types-grid .type-link:active {
+    background: #f3f4f6;
+  }
+
+  /* ----------------------------------------
+   * NAV SECONDARY (Resources, Demo button)
+   * ---------------------------------------- */
   .nav-secondary {
-    border-top: 1px solid #f1f1f1;
-    padding: 16px 20px;
+    border-top: 1px solid #e5e7eb;
+    padding: 20px;
+    margin-top: auto;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: 16px;
-    margin-top: auto;
+  }
+
+  .nav-secondary .dropdown {
+    width: 100%;
   }
 
   .nav-secondary .dropdown-toggle {
-    width: 100%;
-    text-align: left;
-    padding: 16px 20px;
-    background: #fff;
+    background: #f9fafb;
     border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    font-size: 15px;
+    border-radius: 10px;
+    padding: 16px 20px;
   }
 
   .nav-secondary .dropdown.open > .dropdown-toggle {
-    background: #f9fafb;
+    background: #f3f4f6;
     border-color: #d1d5db;
+    border-radius: 10px 10px 0 0;
   }
 
   .nav-secondary .dropdown-panel {
     background: #fff !important;
     border: 1px solid #e5e7eb !important;
     border-top: none !important;
-    border-radius: 0 0 8px 8px;
-    margin-top: -1px !important;
+    border-radius: 0 0 10px 10px !important;
+  }
+
+  .nav-secondary .dropdown-panel[aria-hidden="false"] {
+    padding: 8px 0 !important;
   }
 
   .nav-secondary .panel-link {
     padding: 14px 20px;
+    border-bottom: none;
   }
 
-  .panel-list {
-    background: #fff;
-  }
-
+  /* ----------------------------------------
+   * DEMO BUTTON
+   * ---------------------------------------- */
   .nav-demo-btn {
+    display: block;
     width: 100%;
-    padding: 14px 20px;
+    padding: 16px 24px;
     text-align: center;
     font-size: 15px;
     font-weight: 600;
+    background: #e11d48;
+    color: #fff;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background 0.2s ease;
   }
 
-  .demo-cta-text {
-    display: block;
-    font-size: 14px;
-    color: #6b7280;
-    line-height: 1.5;
-    margin-bottom: 8px;
-    font-style: italic;
+  .nav-demo-btn:hover,
+  .nav-demo-btn:active {
+    background: #be123c;
   }
 
+  /* ----------------------------------------
+   * PRICING LINK
+   * ---------------------------------------- */
   .pricing-li {
     padding: 0;
   }
@@ -236,26 +364,74 @@
   .pricing-li a {
     display: block;
     width: 100%;
-    padding: 16px 20px;
+    padding: 18px 20px;
     color: #111827;
     background: #fff;
+    text-decoration: none;
+    font-weight: 500;
   }
 
-  .pricing-li a:hover {
+  .pricing-li a:hover,
+  .pricing-li a:active {
     background: #f9fafb;
   }
 
-  .item-arrow { opacity: 0.6; }
+  /* ----------------------------------------
+   * BODY NO-SCROLL (when sidebar open)
+   * ---------------------------------------- */
+  body.no-scroll {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+
+  /* ----------------------------------------
+   * OVERLAY
+   * ---------------------------------------- */
+  .menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 1001;
+  }
+
+  .menu-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
-/* Tablet: two-column types grid */
+/* ============================================
+ * TABLET STYLES
+ * ============================================ */
 @media (min-width: 901px) and (max-width: 1200px) {
-  .types-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .dropdown-panel.wide { min-width: 540px; }
+  .types-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .dropdown-panel.wide {
+    min-width: 540px;
+  }
 }
 
-/* Desktop: ensure types grid has three columns when wide */
+/* ============================================
+ * DESKTOP STYLES
+ * ============================================ */
 @media (min-width: 1201px) {
-  .types-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .dropdown-panel.wide { min-width: 720px; }
+  .types-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  
+  .dropdown-panel.wide {
+    min-width: 720px;
+  }
+}
 }
