@@ -1,203 +1,360 @@
+/**
+ * Bireena Atithi - Mobile-First Navigation System
+ * ================================================
+ * Features:
+ * - Smooth sidebar slide animation
+ * - Dropdown expand/collapse on mobile
+ * - Desktop hover behavior preserved
+ * - Accessibility support (aria attributes)
+ * - Production-ready code
+ */
+
 document.addEventListener('DOMContentLoaded', function () {
-	const toggles = document.querySelectorAll('.dropdown-toggle');
+  
+  // ============================================
+  // MOBILE SIDEBAR NAVIGATION
+  // ============================================
+  
+  const openBtn = document.getElementById("openMenu");
+  const closeBtn = document.getElementById("closeMenu");
+  const sidebar = document.getElementById("sidebarNav");
+  const overlay = document.getElementById("menuOverlay");
+  const body = document.body;
 
-	function closeAll() {
-		// Only close all on desktop
-		if (window.innerWidth > 900) {
-			document.querySelectorAll('.dropdown-panel').forEach(p => p.setAttribute('aria-hidden', 'true'));
-			document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
-		}
-	}
-
-	function closeAllMobile() {
-		document.querySelectorAll('.dropdown-panel').forEach(p => p.setAttribute('aria-hidden', 'true'));
-		document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
-	}
-
-	// Use pointerenter/pointerleave with a short delay to avoid flicker
-	const closeTimers = new Map();
-
-	toggles.forEach(btn => {
-		const id = btn.getAttribute('data-dropdown');
-		const panel = document.getElementById(id);
-		const parent = btn.closest('.dropdown');
-
-		function openPanel() {
-			if (window.innerWidth > 900) {
-				closeAll();
-			}
-			panel.setAttribute('aria-hidden', 'false');
-			parent.classList.add('open');
-		}
-
-		function closePanel() {
-			panel.setAttribute('aria-hidden', 'true');
-			parent.classList.remove('open');
-		}
-
-		function scheduleClose() {
-			// small delay to allow pointer to move between button and panel
-			const t = setTimeout(() => {
-				panel.setAttribute('aria-hidden', 'true');
-				parent.classList.remove('open');
-				closeTimers.delete(parent);
-			}, 200);
-			closeTimers.set(parent, t);
-		}
-
-		function cancelScheduledClose() {
-			const t = closeTimers.get(parent);
-			if (t) {
-				clearTimeout(t);
-				closeTimers.delete(parent);
-			}
-		}
-
-		btn.addEventListener('click', (e) => {
-			const isOpen = panel.getAttribute('aria-hidden') === 'false';
-			if (isOpen) {
-				closePanel();
-			} else {
-				openPanel();
-			}
-			e.stopPropagation();
-		});
-
-		// Keep open while pointer is inside parent (includes panel because it's a child)
-		parent.addEventListener('pointerenter', () => {
-			if (window.innerWidth > 900) {
-				cancelScheduledClose();
-				openPanel();
-			}
-		});
-		parent.addEventListener('pointerleave', () => {
-			if (window.innerWidth > 900) {
-				scheduleClose();
-			}
-		});
-	});
-
-	// Close when clicking outside (only on desktop)
-	document.addEventListener('click', (e) => {
-		if (window.innerWidth > 900) {
-			closeAll();
-		}
-	});
-
-	// Prevent closing when clicking inside sidebar on mobile
-	document.getElementById('sidebarNav')?.addEventListener('click', (e) => {
-		e.stopPropagation();
-	});
-
-	// Close on Escape
-	document.addEventListener('keydown', (e) => {
-		if (e.key === 'Escape') {
-			if (window.innerWidth <= 900) {
-				closeAllMobile();
-			} else {
-				closeAll();
-			}
-		}
-	});
-
-	// Close dropdowns when resizing into small screens to avoid stuck open panels
-	let resizeTimer;
-	window.addEventListener('resize', () => {
-		clearTimeout(resizeTimer);
-		resizeTimer = setTimeout(() => {
-			if (window.innerWidth <= 900) {
-				document.querySelectorAll('.dropdown-panel[aria-hidden="false"]').forEach(panel => {
-					panel.setAttribute('aria-hidden', 'true');
-					const p = panel.closest('.dropdown');
-					if (p) p.classList.remove('open');
-				});
-			}
-		}, 150);
-	});
-});
-  const slides = document.querySelectorAll(".testimonial-slide");
-  const dots = document.querySelectorAll(".dot");
-  let index = 0;
-
-  function showSlide(i) {
-    slides.forEach(slide => slide.classList.remove("active"));
-    dots.forEach(dot => dot.classList.remove("active"));
-
-    slides[i].classList.add("active");
-    dots[i].classList.add("active");
-    index = i;
+  /**
+   * Open the mobile sidebar
+   */
+  function openSidebar() {
+    if (!sidebar || !overlay) return;
+    sidebar.classList.add("active");
+    overlay.classList.add("active");
+    body.classList.add("no-scroll");
+    sidebar.setAttribute("aria-hidden", "false");
   }
 
-  dots.forEach(dot => {
-    dot.addEventListener("click", () => {
-      showSlide(dot.dataset.slide);
+  /**
+   * Close the mobile sidebar
+   */
+  function closeSidebar() {
+    if (!sidebar || !overlay) return;
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+    body.classList.remove("no-scroll");
+    sidebar.setAttribute("aria-hidden", "true");
+    
+    // Close all dropdowns when sidebar closes
+    closeAllDropdowns();
+  }
+
+  // Sidebar open/close event listeners
+  if (openBtn) {
+    openBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openSidebar();
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeSidebar();
+    });
+  }
+
+  // Close sidebar when clicking overlay
+  if (overlay) {
+    overlay.addEventListener("click", closeSidebar);
+  }
+
+  // Close sidebar on window resize (desktop)
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 900) {
+      closeSidebar();
+    }
+  });
+
+  // ============================================
+  // DROPDOWN NAVIGATION SYSTEM
+  // ============================================
+
+  const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+  const closeTimers = new Map();
+
+  /**
+   * Close all dropdown panels
+   */
+  function closeAllDropdowns() {
+    document.querySelectorAll('.dropdown-panel').forEach(panel => {
+      panel.setAttribute('aria-hidden', 'true');
+    });
+    document.querySelectorAll('.dropdown').forEach(dropdown => {
+      dropdown.classList.remove('open');
+    });
+    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  /**
+   * Open a specific dropdown panel
+   * @param {HTMLElement} dropdown - The dropdown container
+   * @param {HTMLElement} panel - The dropdown panel
+   */
+  function openDropdown(dropdown, panel) {
+    // On desktop, close other dropdowns first
+    if (window.innerWidth > 900) {
+      closeAllDropdowns();
+    }
+    
+    panel.setAttribute('aria-hidden', 'false');
+    dropdown.classList.add('open');
+    
+    // Update aria-expanded on toggle button
+    const toggle = dropdown.querySelector('.dropdown-toggle');
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', 'true');
+    }
+  }
+
+  /**
+   * Close a specific dropdown panel
+   * @param {HTMLElement} dropdown - The dropdown container
+   * @param {HTMLElement} panel - The dropdown panel
+   */
+  function closeDropdown(dropdown, panel) {
+    panel.setAttribute('aria-hidden', 'true');
+    dropdown.classList.remove('open');
+    
+    // Update aria-expanded on toggle button
+    const toggle = dropdown.querySelector('.dropdown-toggle');
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  /**
+   * Toggle dropdown open/close state
+   * @param {HTMLElement} dropdown - The dropdown container
+   * @param {HTMLElement} panel - The dropdown panel
+   */
+  function toggleDropdown(dropdown, panel) {
+    const isOpen = panel.getAttribute('aria-hidden') === 'false';
+    
+    if (isOpen) {
+      closeDropdown(dropdown, panel);
+    } else {
+      openDropdown(dropdown, panel);
+    }
+  }
+
+  // Initialize each dropdown toggle
+  dropdownToggles.forEach(toggle => {
+    const dropdownId = toggle.getAttribute('data-dropdown');
+    const panel = document.getElementById(dropdownId);
+    const dropdown = toggle.closest('.dropdown');
+
+    if (!panel || !dropdown) return;
+
+    // Set initial aria attributes
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-controls', dropdownId);
+
+    /**
+     * CLICK EVENT - Works for both mobile and desktop
+     * Prevents default behavior and toggles dropdown
+     */
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Cancel any scheduled close
+      const timer = closeTimers.get(dropdown);
+      if (timer) {
+        clearTimeout(timer);
+        closeTimers.delete(dropdown);
+      }
+
+      toggleDropdown(dropdown, panel);
+    });
+
+    /**
+     * DESKTOP ONLY - Hover to open
+     * Uses pointer events for better touch/mouse handling
+     */
+    dropdown.addEventListener('pointerenter', () => {
+      if (window.innerWidth > 900) {
+        // Cancel any scheduled close
+        const timer = closeTimers.get(dropdown);
+        if (timer) {
+          clearTimeout(timer);
+          closeTimers.delete(dropdown);
+        }
+        openDropdown(dropdown, panel);
+      }
+    });
+
+    /**
+     * DESKTOP ONLY - Mouse leave to close with delay
+     * Small delay allows moving between toggle and panel
+     */
+    dropdown.addEventListener('pointerleave', () => {
+      if (window.innerWidth > 900) {
+        const timer = setTimeout(() => {
+          closeDropdown(dropdown, panel);
+          closeTimers.delete(dropdown);
+        }, 200);
+        closeTimers.set(dropdown, timer);
+      }
     });
   });
 
-  setInterval(() => {
-    index = (index + 1) % slides.length;
-    showSlide(index);
-  }, 5000);
-	const openBtn = document.getElementById("openMenu");
-	const closeBtn = document.getElementById("closeMenu");
-	const nav = document.getElementById("sidebarNav");
-	const overlay = document.getElementById("menuOverlay");
-	const pageBody = document.body;
+  /**
+   * Close dropdowns when clicking outside (desktop only)
+   * Mobile sidebar handles its own click behavior
+   */
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth > 900) {
+      // Check if click is outside any dropdown
+      const isInsideDropdown = e.target.closest('.dropdown');
+      if (!isInsideDropdown) {
+        closeAllDropdowns();
+      }
+    }
+  });
 
-	if (openBtn && closeBtn && nav && overlay) {
-		// Only close sidebar when clicking links that are NOT "#"
-		const navLinks = nav.querySelectorAll("a");
+  /**
+   * Prevent clicks inside sidebar from bubbling up
+   * This stops sidebar from closing when clicking inside
+   */
+  if (sidebar) {
+    sidebar.addEventListener('click', (e) => {
+      // Only stop propagation, don't prevent default
+      // This allows links inside to work
+      e.stopPropagation();
+    });
+  }
 
-		const openNav = () => {
-			nav.classList.add("active");
-			overlay.classList.add("active");
-			pageBody.classList.add("no-scroll");
-		};
+  /**
+   * Handle clicks on panel links
+   * Close sidebar only for real navigation links
+   */
+  document.querySelectorAll('.panel-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      
+      // If it's a real link (not # or empty), close sidebar on mobile
+      if (href && href !== '#' && href !== '') {
+        if (window.innerWidth <= 900) {
+          // Small delay to show click feedback
+          setTimeout(() => {
+            closeSidebar();
+          }, 100);
+        }
+      }
+      
+      // Don't prevent default - let the link navigate
+    });
+  });
 
-		const closeNav = () => {
-			nav.classList.remove("active");
-			overlay.classList.remove("active");
-			pageBody.classList.remove("no-scroll");
-		};
+  /**
+   * Keyboard accessibility
+   * Close dropdowns/sidebar on Escape key
+   */
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeAllDropdowns();
+      
+      // Also close sidebar on mobile
+      if (window.innerWidth <= 900) {
+        closeSidebar();
+      }
+    }
+  });
 
-		openBtn.addEventListener("click", openNav);
-		closeBtn.addEventListener("click", closeNav);
-		overlay.addEventListener("click", closeNav);
-		
-		// Only close sidebar when clicking actual navigation links (not #)
-		navLinks.forEach(link => {
-			link.addEventListener("click", (e) => {
-				const href = link.getAttribute("href");
-				// Only close if it's a real link (not just "#")
-				if (href && href !== "#") {
-					closeNav();
-				}
-			});
-		});
+  // ============================================
+  // TESTIMONIAL SLIDER
+  // ============================================
 
-		window.addEventListener("resize", () => {
-			if (window.innerWidth > 900) {
-				closeNav();
-			}
-		});
-	}
+  const slides = document.querySelectorAll(".testimonial-slide");
+  const dots = document.querySelectorAll(".dot");
+  let currentSlide = 0;
+  let slideInterval;
 
-  // ============ COUNTER ANIMATION ============
+  /**
+   * Show a specific slide
+   * @param {number} index - Slide index to show
+   */
+  function showSlide(index) {
+    if (slides.length === 0) return;
+    
+    // Normalize index
+    if (index >= slides.length) index = 0;
+    if (index < 0) index = slides.length - 1;
+
+    // Remove active class from all
+    slides.forEach(slide => slide.classList.remove("active"));
+    dots.forEach(dot => dot.classList.remove("active"));
+
+    // Add active class to current
+    slides[index].classList.add("active");
+    if (dots[index]) {
+      dots[index].classList.add("active");
+    }
+    
+    currentSlide = index;
+  }
+
+  /**
+   * Auto-advance slides
+   */
+  function startSlideshow() {
+    slideInterval = setInterval(() => {
+      showSlide(currentSlide + 1);
+    }, 5000);
+  }
+
+  // Dot click handlers
+  dots.forEach((dot, index) => {
+    dot.addEventListener("click", () => {
+      showSlide(parseInt(dot.dataset.slide) || index);
+      
+      // Reset auto-advance timer
+      clearInterval(slideInterval);
+      startSlideshow();
+    });
+  });
+
+  // Start slideshow if slides exist
+  if (slides.length > 0) {
+    startSlideshow();
+  }
+
+  // ============================================
+  // COUNTER ANIMATION
+  // ============================================
+
   const counters = document.querySelectorAll('.counter');
   let countersAnimated = false;
 
+  /**
+   * Animate counter numbers
+   */
   function animateCounters() {
     if (countersAnimated) return;
     
     counters.forEach(counter => {
-      const target = +counter.getAttribute('data-target');
+      const target = parseFloat(counter.getAttribute('data-target')) || 0;
       const suffix = counter.getAttribute('data-suffix') || '';
       const duration = 2000; // 2 seconds
-      const increment = target / (duration / 16); // 60fps
+      const fps = 60;
+      const increment = target / (duration / (1000 / fps));
       let current = 0;
 
       const updateCounter = () => {
         current += increment;
+        
         if (current < target) {
           counter.textContent = Math.floor(current) + suffix;
           requestAnimationFrame(updateCounter);
@@ -206,16 +363,19 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       };
 
-      updateCounter();
+      requestAnimationFrame(updateCounter);
     });
     
     countersAnimated = true;
   }
 
-  // Intersection Observer to trigger animation when stats section is visible
+  /**
+   * Intersection Observer for counter animation
+   * Triggers when stats section comes into view
+   */
   const statsSection = document.querySelector('.testimonial-stats');
   
-  if (statsSection) {
+  if (statsSection && counters.length > 0) {
     const observerOptions = {
       root: null,
       rootMargin: '0px',
@@ -226,9 +386,13 @@ document.addEventListener('DOMContentLoaded', function () {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           animateCounters();
+          // Stop observing after animation
+          statsObserver.unobserve(entry.target);
         }
       });
     }, observerOptions);
 
     statsObserver.observe(statsSection);
   }
+
+});
