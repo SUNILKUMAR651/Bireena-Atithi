@@ -70,6 +70,7 @@
     position: absolute;
     top: 20px;
     right: 20px;
+    z-index: 1003;
     width: 40px;
     height: 40px;
     font-size: 28px;
@@ -433,5 +434,4 @@
   .dropdown-panel.wide {
     min-width: 720px;
   }
-}
 }
